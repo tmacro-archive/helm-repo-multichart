@@ -98,6 +98,7 @@ async function getNeededBuilds(changes) {
             releases.push(change);
         }
     }
+    return releases;
 }
 
 async function main() {

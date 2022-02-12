@@ -1,6 +1,8 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 
+const work_dir = process.env.GITHUB_WORKSPACE;
+
 async function getRefs() {
     const options = {
         cwd: work_dir,
@@ -54,14 +56,14 @@ async function getChangesForCommit(ref) {
 }
 
 async function getLatestChanges() {
-    let changes = await get_changes_for_commit('HEAD~1');
+    let changes = await getChangesForCommit('HEAD~1');
     if (!changes) {
         // No changes normally means an empty merge commit.
         // So we'll fetch the history and walk backwards until we find a change.
         await fetch_history();
-        const refs = await get_refs();
+        const refs = await getRefs();
         for (let i = 1; i < refs.length; i++) {
-            changes = await get_changes_for_commit(`${refs}~1`);
+            changes = await getChangesForCommit(`${refs}~1`);
             if (changes) {
                 break;
             }
