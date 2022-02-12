@@ -1,0 +1,22 @@
+name: "helm-repo-multichart"
+description: "Publishing multiple charts to a Github Pages helm repo"
+inputs:
+  charts_dir:
+    description: "Relative path to the directory containing charts to release"
+    required: False
+    default: charts/
+  helm_version:
+    description: Version of helm to fetch and use
+    required: False
+    default: "1.3.0"
+  chart_releaser_version:
+    description: Version of chart-releaser to fetch and use
+    required: False
+    default: "1.3.0"
+  dry_run:
+    description: Don't modify or release anything
+    required: False
+    default: 'false'
+runs:
+  using: "node16"
+  main: "index.js"
