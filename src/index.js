@@ -62,7 +62,7 @@ async function getChangedCharts() {
                 const { name, version } = loadChart(
                     Path.resolve(`${work_dir}/${path}`),
                 );
-                changed.push({ name, version });
+                changed.push({ chart: name, version });
             }
         }
         return changed;
