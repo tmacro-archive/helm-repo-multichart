@@ -19,6 +19,9 @@ const work_dir = process.env.GITHUB_WORKSPACE;
 const chart_dir = core.getInput('chart_dir') || defaultChartDir;
 const dry_run = core.getBooleanInput('dry_run') || defaultDryRun;
 
+const _token = core.getInput('CR_TOKEN');
+const octokit = github.getOctokit(_token);
+
 if (!work_dir) {
     core.setFailed('Unable to locate workspace!');
 }
