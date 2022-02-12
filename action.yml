@@ -13,6 +13,10 @@ inputs:
     description: Don't modify or release anything
     required: False
     default: 'false'
+  chart_repo_url:
+    required: true
+    description: Url of the chart repo
+
 runs:
   using: "node16"
   main: "src/index.js"

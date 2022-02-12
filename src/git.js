@@ -75,10 +75,31 @@ async function getLatestChanges() {
     return changes;
 }
 
+async function createTag(tag) {
+    const options = {
+        cwd: work_dir,
+        listeners: {
+            stdline: line => {
+                core.debug(line);
+            },
+            stderr: buf => {
+                core.debug(buf.toString());
+            },
+        },
+    };
+    await exec.exec(
+        'git',
+        ['tag', tag],
+        options,
+    );
+    core.debug(`ret_code: ${ret_code}`);
+}
+
 module.exports = {
     getRefs,
     hasTag,
     fetchHistory,
     getChangesForCommit,
     getLatestChanges,
+    createTag
 }

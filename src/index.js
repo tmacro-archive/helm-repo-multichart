@@ -15,11 +15,14 @@ const defaultDryRun = false;
 
 // Get the working directory
 const work_dir = process.env.GITHUB_WORKSPACE;
+const git_ref = process.env.GITHUB_SHA;
 
+const chart_repo_url = core.getInput('chart_repo_url');
 const chart_dir = core.getInput('chart_dir') || defaultChartDir;
 const dry_run = core.getBooleanInput('dry_run') || defaultDryRun;
 
 const octokit = github.getOctokit(process.env.CR_TOKEN);
+const { owner, repo } = github.context.repo;
 
 if (!work_dir) {
     core.setFailed('Unable to locate workspace!');
@@ -34,7 +37,8 @@ async function skipIfDryRun(func) {
 }
 
 async function fetchTools() {
-    const chartReleaserVersion = core.getInput('chart_releaser_version') || defaultChartReleaserVersion;
+    const chartReleaserVersion =
+        core.getInput('chart_releaser_version') || defaultChartReleaserVersion;
     const chartReleaserPath = await tc.downloadTool(
         `https://github.com/helm/chart-releaser/releases/download/v${chartReleaserVersion}/chart-releaser_${chartReleaserVersion}_linux_amd64.tar.gz`,
     );
@@ -86,13 +90,10 @@ async function getNeededTags(changes) {
 
 async function releaseExists(tag) {
     try {
-        await octokit.request(
-            'GET /repos/{owner}/{repo}/releases/tags/{tag}',
-            {
-                ...github.context.repo,
-                tag,
-            },
-        );
+        await octokit.request('GET /repos/{owner}/{repo}/releases/tags/{tag}', {
+            ...github.context.repo,
+            tag,
+        });
     } catch {
         return false;
     }
@@ -110,6 +111,55 @@ async function getNeededBuilds(changes) {
         }
     }
     return releases;
+}
+
+async function createTags(tags) {
+    for (const tag of tags) {
+        const _tag = `${tag.chart}-${tag.version}`;
+        await git.createTag(_tag);
+    }
+}
+
+async function packageCharts(changes) {
+    for (const change of changes) {
+        const options = {
+            cwd: work_dir,
+            listeners: {
+                stdline: line => {
+                    core.debug(line);
+                },
+                stderr: buf => {
+                    core.debug(buf.toString());
+                },
+            },
+        };
+        await exec.exec(
+            'cr',
+            ['package', `${chart_dir}/${change.chart}`],
+            options,
+        );
+        core.debug(`ret_code: ${ret_code}`);
+    }
+}
+
+async function publishCharts() {
+    const options = {
+        cwd: work_dir,
+        listeners: {
+            stdline: line => {
+                core.debug(line);
+            },
+            stderr: buf => {
+                core.debug(buf.toString());
+            },
+        },
+    };
+    await exec.exec(
+        'cr',
+        ['upload', '-o', owner, '-r', repo, '-c', chart_repo_url],
+        options,
+    );
+    core.debug(`ret_code: ${ret_code}`);
 }
 
 async function main() {
@@ -142,7 +192,7 @@ async function main() {
                 .map(nb => `${nb.chart}-${nb.version}`)
                 .join(', ')}`,
         );
-        await skipIfDryRun(() => publishCharts(neededBuilds));
+        await skipIfDryRun(() => publishCharts());
 
         core.info('Generating chart repo index');
         await skipIfDryRun(() => updateIndex());
