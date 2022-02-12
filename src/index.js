@@ -156,7 +156,26 @@ async function publishCharts() {
     };
     await exec.exec(
         'cr',
-        ['upload', '-o', owner, '-r', repo, '-c', chart_repo_url],
+        ['upload', '-o', owner, '-r', repo, '-c', git_ref],
+        options,
+    );
+}
+
+async function updateIndex() {
+    const options = {
+        cwd: work_dir,
+        listeners: {
+            stdline: line => {
+                core.debug(line);
+            },
+            stderr: buf => {
+                core.debug(buf.toString());
+            },
+        },
+    };
+    await exec.exec(
+        'cr',
+        ['index', '-o', owner, '-r', repo, '-c', chart_repo_url],
         options,
     );
 }
