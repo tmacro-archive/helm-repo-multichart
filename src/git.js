@@ -20,9 +20,12 @@ async function getRefs() {
 }
 
 async function hasTag(tag) {
-    const options = { cwd: work_dir };
-    const ret_code = await exec.exec('git', ['rev-parse', tag], options);
-    return ret_code === 0;
+    try {
+        await exec.exec('git', ['rev-parse', tag, '--'], options);
+    } catch (err) {
+        return false;
+    }
+    return true;
 }
 
 async function fetchHistory() {
