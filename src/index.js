@@ -4,6 +4,7 @@ const fs = require('fs');
 const core = require('@actions/core');
 const github = require('@actions/github');
 const exec = require('@actions/exec');
+const io = require('@actions/io');
 
 const tc = require('@actions/tool-cache');
 const yaml = require('js-yaml');
@@ -182,6 +183,14 @@ async function updateIndex() {
 
 async function main() {
     await fetchTools();
+
+    // cleanup any existing state directories
+    await io.rmRF(`${work_dir}/.cr-release-packages`);
+    await io.mkdirP(`${work_dir}/.cr-release-packages`);
+
+    await io.rmRF(`${work_dir}/.cr-index`);
+    await io.mkdirP(`${work_dir}/.cr-index`);
+
     const changes = await getChangedCharts();
     const neededTags = await getNeededTags(changes);
     const neededBuilds = await getNeededBuilds(changes);
