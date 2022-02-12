@@ -29,7 +29,7 @@ async function skipIfDryRun(func) {
 async function fetchTools() {
     const chartReleaserVersion = core.getInput('chart_releaser_version');
     const chartReleaserPath = await tc.downloadTool(
-        `https://get.helm.sh/helm-v${chartReleaserVersion}-linux-amd64.tar.gz`,
+        `https://github.com/helm/chart-releaser/releases/download/v${chartReleaserVersion}/chart-releaser_${chartReleaserVersion}_linux_amd64.tar.gz`,
     );
     const chartReleaserExtractedFolder = await tc.extractTar(
         chartReleaserPath,
@@ -54,7 +54,9 @@ async function getChangedCharts() {
         if (path.startsWith(chart_dir)) {
             const [_, chart, ...relPath] = path.split('/');
             if (relPath.join('') === 'Chart.yaml') {
-                const { name, version } = loadChart(Path.resolve(`${work_dir}/${path}`));
+                const { name, version } = loadChart(
+                    Path.resolve(`${work_dir}/${path}`),
+                );
                 changed.push({ name, version });
             }
         }
