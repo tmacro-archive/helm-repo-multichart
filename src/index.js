@@ -175,7 +175,7 @@ async function updateIndex() {
     };
     await exec.exec(
         'cr',
-        ['index', '-o', owner, '-r', repo, '-c', chart_repo_url],
+        ['index', '-o', owner, '-r', repo, '-c', chart_repo_url, '--push'],
         options,
     );
 }
