@@ -85,14 +85,18 @@ async function getNeededTags(changes) {
 }
 
 async function releaseExists(tag) {
-    const resp = await octokit.request(
-        'GET /repos/{owner}/{repo}/releases/tags/{tag}',
-        {
-            ...github.context.repo,
-            tag,
-        },
-    );
-    console.log(resp);
+    try {
+        await octokit.request(
+            'GET /repos/{owner}/{repo}/releases/tags/{tag}',
+            {
+                ...github.context.repo,
+                tag,
+            },
+        );
+    } catch {
+        return false;
+    }
+    return true;
 }
 
 async function getNeededBuilds(changes) {
