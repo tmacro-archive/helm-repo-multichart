@@ -139,7 +139,6 @@ async function packageCharts(changes) {
             ['package', `${chart_dir}/${change.chart}`],
             options,
         );
-        core.debug(`ret_code: ${ret_code}`);
     }
 }
 
@@ -160,7 +159,6 @@ async function publishCharts() {
         ['upload', '-o', owner, '-r', repo, '-c', chart_repo_url],
         options,
     );
-    core.debug(`ret_code: ${ret_code}`);
 }
 
 async function main() {
