@@ -92,7 +92,6 @@ async function createTag(tag) {
         ['tag', tag],
         options,
     );
-    core.debug(`ret_code: ${ret_code}`);
 }
 
 module.exports = {
