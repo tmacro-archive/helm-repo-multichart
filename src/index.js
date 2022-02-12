@@ -8,11 +8,16 @@ const tc = require('@actions/tool-cache');
 const yaml = require('js-yaml');
 const git = require('./git');
 
+// Default values for inputs
+const defaultChartReleaserVersion = '3.8.0';
+const defaultChartDir = 'charts';
+const defaultDryRun = false;
+
 // Get the working directory
 const work_dir = process.env.GITHUB_WORKSPACE;
 
-const chart_dir = core.getInput('chart_dir');
-const dry_run = core.getBooleanInput('dry_run');
+const chart_dir = core.getInput('chart_dir') || defaultChartDir;
+const dry_run = core.getBooleanInput('dry_run') || defaultDryRun;
 
 if (!work_dir) {
     core.setFailed('Unable to locate workspace!');
@@ -27,7 +32,7 @@ async function skipIfDryRun(func) {
 }
 
 async function fetchTools() {
-    const chartReleaserVersion = core.getInput('chart_releaser_version');
+    const chartReleaserVersion = core.getInput('chart_releaser_version') || defaultChartReleaserVersion;
     const chartReleaserPath = await tc.downloadTool(
         `https://github.com/helm/chart-releaser/releases/download/v${chartReleaserVersion}/chart-releaser_${chartReleaserVersion}_linux_amd64.tar.gz`,
     );
